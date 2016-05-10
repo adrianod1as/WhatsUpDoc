@@ -4,6 +4,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.text.format.DateUtils;
 import android.view.View;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -12,7 +13,9 @@ import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.BaseAdapter;
 import android.widget.ListView;
+import android.widget.TextView;
 
+import com.sd.bugsbunny.Models.Message;
 import com.sd.bugsbunny.Models.User;
 import com.sd.bugsbunny.R;
 
@@ -93,6 +96,8 @@ public class Contacts extends AppCompatActivity {
 
 
     }
+
+
 
 //
 

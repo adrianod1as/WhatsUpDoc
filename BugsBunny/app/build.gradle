@@ -18,6 +18,10 @@ android {
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
     }
+    packagingOptions {
+        exclude 'META-INF/LICENSE.txt'
+        exclude 'META-INF/NOTICE.txt'
+    }
 }
 
 dependencies {
@@ -25,5 +29,11 @@ dependencies {
     testCompile 'junit:junit:4.12'
     compile 'com.android.support:appcompat-v7:23.3.0'
     compile 'com.android.support:design:23.3.0'
-
+    compile files('libs/commons-cli-1.1.jar')
+    compile files('libs/commons-io-1.2.jar')
+    compile files('libs/hamcrest-core.jar')
+    compile files('libs/junit.jar')
+    compile files('libs/rabbitmq-client.jar')
+    compile files('libs/rabbitmq-client-tests.jar')
+    compile files('libs/gson-2.2.4.jar')
 }
