@@ -83,7 +83,7 @@ public class Bunny {
     public void startService() throws IOException {
 
 
-            subscribe();
+//            subscribe();
             publishToAMQP();
 
     }
@@ -135,7 +135,7 @@ public class Bunny {
 
 
 
-    void subscribe()
+    public void subscribe(final Handler handler)
     {
         subscribeThread = new Thread(new Runnable() {
             @Override
@@ -148,31 +148,24 @@ public class Bunny {
                         Connection connection = factory.newConnection();
                         Channel channel = connection.createChannel();
                         channel.basicQos(1);
-                        AMQP.Queue.DeclareOk q = channel.queueDeclare("adrianodiasx93", true, false, false, null);
-                        channel.queueBind(q.getQueue(), "amq.direct", "adrianodiasx93");
+                        AMQP.Queue.DeclareOk q = channel.queueDeclare("alexpud", true, false, false, null);
+                        channel.queueBind(q.getQueue(), "amq.direct", "alexpud");
                         QueueingConsumer consumer = new QueueingConsumer(channel);
-//                        channel.basicConsume(q.getQueue(), true, consumer);
+                        channel.basicConsume(q.getQueue(), true, consumer);
 
                         while (true) {
                             QueueingConsumer.Delivery delivery = consumer.nextDelivery();
 
-//                            String message = new String(delivery.getBody());
-//                            Log.d("","[r] " + message);
-//
-//                            android.os.Message msg = handler.obtainMessage();
-//                            Bundle bundle = new Bundle();
-//
-//                            bundle.putString("msg", message);
-//                            msg.setData(bundle);
-//                            handler.sendMessage(msg);
-//
-//                            QueueingConsumer.Delivery delivery = consumer.nextDelivery();
-//
-//                            Gson gson = new Gson();
-//                            Message message = gson.fromJson(new String(delivery.getBody()), Message.class);
-//                            for (OnMessageReceivedListener l : onMessageReceivedListenerList) {
-//                                l.onMessageReceived(message);
-//                            }
+                            String message = new String(delivery.getBody());
+                            Log.d("","[r] " + message);
+
+                            android.os.Message msg = handler.obtainMessage();
+                            Bundle bundle = new Bundle();
+
+                            bundle.putString("msg", message);
+                            msg.setData(bundle);
+                            handler.sendMessage(msg);
+
                         }
                     } catch (InterruptedException e) {
                         break;

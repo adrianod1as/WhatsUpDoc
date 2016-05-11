@@ -26,10 +26,16 @@ import android.widget.Toast;
 import com.sd.bugsbunny.Models.Message;
 import com.sd.bugsbunny.R;
 import com.sd.bugsbunny.Utils.Bunny;
+import com.sd.bugsbunny.Utils.Databaser;
 
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Date;
+
+import io.realm.Realm;
+import io.realm.RealmChangeListener;
+import io.realm.RealmConfiguration;
+import io.realm.RealmResults;
 
 /**
  * Created by adrianodiasx93 on 5/8/16.
@@ -60,6 +66,12 @@ public class Chat extends AppCompatActivity {
     private Button btnSend;
 
     private Toolbar informBuddy;
+
+    private RealmConfiguration realmConfig;
+
+    private Realm realm;
+
+    private RealmResults<Message> chatmessages;
 
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -96,7 +108,31 @@ public class Chat extends AppCompatActivity {
             Log.e("RECEIVING", e.getMessage(), e);
 
         }
+
+        loadMessages("alexpud", buddy);
+
+        realmConfig = new RealmConfiguration.Builder(getApplicationContext()).build();
+        realm = Realm.getInstance(realmConfig);
+        chatmessages = realm.where(Message.class).findAllAsync();
+
+        chatmessages.addChangeListener(new RealmChangeListener<RealmResults<Message>>() {
+            @Override
+            public void onChange(RealmResults<Message> results) {
+                Message m = Databaser.getINSTANCE().getLastMessage("alexpud", buddy);
+                convList.add(m);
+                adp.notifyDataSetChanged();
+            }
+        });
     }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+        Databaser.getINSTANCE().setContext(getApplicationContext());
+        // Set up the login form.
+
+    }
+
 
     private void showTheNameOfMy(String buddy){
         informBuddy = (Toolbar) findViewById(R.id.chat_toolbar);
@@ -121,13 +157,29 @@ public class Chat extends AppCompatActivity {
         imm.hideSoftInputFromWindow(txt.getWindowToken(), 0);
 
         String text = txt.getText().toString();
-        final Message msg = new Message(text, new Date(), "adrianodiasx93", buddy);
-        convList.add(msg);
+        final Message msg = new Message(text, new Date(), "alexpud", buddy);
+        msg.setSent(true);
+        Databaser.getINSTANCE().saveToDatabase(msg);
+       // convList.add(msg);
+
         adp.notifyDataSetChanged();
         txt.setText(null);
 
         new SendMessageAsyncTask(msg).execute();
 
+
+    }
+
+    private void loadMessages(final String sender, final String receiver){
+        RealmResults<Message> messages = Databaser.getINSTANCE().getAllChatMessagesOf(sender, receiver);
+        int x = messages.size();
+        String str = String.valueOf(messages.size());
+        Toast.makeText(Chat.this, "iamhere" + str, Toast.LENGTH_LONG).show();
+        for (Message m: messages){
+
+            convList.add(m);
+            adp.notifyDataSetChanged();
+        }
 
     }
 
@@ -210,6 +262,31 @@ public class Chat extends AppCompatActivity {
         Message message;
 
         public SendMessageAsyncTask(Message message){
+            this.message=message;
+        }
+
+        @Override
+        protected Boolean doInBackground(Void... params) {
+            Bunny.getINSTANCE().send(message);
+            return true;
+
+        }
+
+        @Override
+        protected void onPostExecute(final Boolean success) {
+            if(!success){
+                Toast.makeText(Chat.this, "Ops, tivemos um problema.", Toast.LENGTH_LONG).show();
+                //TODO react to fail
+            }
+        }
+
+    }
+
+    public class LoadlastMessageTask extends AsyncTask<Void, Void, Boolean> {
+
+        Message message;
+
+        public LoadlastMessageTask(Message message){
             this.message=message;
         }
 
