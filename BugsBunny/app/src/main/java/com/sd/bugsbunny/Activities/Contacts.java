@@ -5,34 +5,24 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
-import android.text.format.DateUtils;
-import android.util.Log;
 import android.view.View;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
-import android.widget.BaseAdapter;
 import android.widget.ListView;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.gson.Gson;
 import com.sd.bugsbunny.Models.Message;
 import com.sd.bugsbunny.Models.User;
 import com.sd.bugsbunny.R;
-import com.sd.bugsbunny.Utils.Bunny;
-import com.sd.bugsbunny.Utils.Databaser;
+import com.sd.bugsbunny.Singleton.Bunny;
+import com.sd.bugsbunny.Singleton.Databaser;
+import com.sd.bugsbunny.Singleton.Sender;
 
-import java.io.IOException;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Date;
-
-import io.realm.Realm;
-import io.realm.RealmConfiguration;
 
 public class Contacts extends AppCompatActivity {
 
@@ -43,14 +33,16 @@ public class Contacts extends AppCompatActivity {
     /** The user. */
     public static User user;
 
+    private Toolbar informUser;
+
     private ArrayAdapter<String> listAdapter ;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_contacts);
-        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
-        setSupportActionBar(toolbar);
+
+        showTheNameOfMy(Sender.getINSTANCE().getUsername());
 
         loadContacts();
         listenToMessages();
@@ -61,6 +53,7 @@ public class Contacts extends AppCompatActivity {
     protected void onStart() {
         super.onStart();
         Databaser.getINSTANCE().setContext(getApplicationContext());
+
         // Set up the login form.
 
     }
@@ -88,7 +81,11 @@ public class Contacts extends AppCompatActivity {
     }
 
 
-
+    private void showTheNameOfMy(String user){
+        informUser = (Toolbar) findViewById(R.id.contact_toolbar);
+        setSupportActionBar(informUser);
+        getSupportActionBar().setTitle(user);
+    }
 
     private void loadContacts()
     {
@@ -126,10 +123,11 @@ public class Contacts extends AppCompatActivity {
                 String message = msg.getData().getString("msg");
                 Gson gson = new Gson();
                 Message message_db = gson.fromJson(message, Message.class);
+                message_db.setSent(false);
                 if(message_db != null){
-                    Toast.makeText(Contacts.this, message_db.getText(), Toast.LENGTH_LONG).show();
+                    Toast.makeText(Contacts.this, "Nova mensagem enviada por " + message_db.getSender(), Toast.LENGTH_LONG).show();
                 }else{
-                    Toast.makeText(Contacts.this, "null", Toast.LENGTH_LONG).show();
+                    Toast.makeText(Contacts.this, "houston we have a problem at receiving", Toast.LENGTH_LONG).show();
                 }
 
                 Databaser.getINSTANCE().saveToDatabase(message_db);

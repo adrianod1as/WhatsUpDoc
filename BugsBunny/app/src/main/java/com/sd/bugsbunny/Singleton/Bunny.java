@@ -1,10 +1,9 @@
-package com.sd.bugsbunny.Utils;
+package com.sd.bugsbunny.Singleton;
 
 import android.content.Context;
 import android.os.Bundle;
 import android.os.Handler;
 import android.util.Log;
-import android.widget.Toast;
 
 import com.google.gson.Gson;
 import com.rabbitmq.client.AMQP;
@@ -16,7 +15,6 @@ import com.rabbitmq.client.QueueingConsumer;
 import com.sd.bugsbunny.Models.Message;
 
 import java.io.IOException;
-import java.util.List;
 import java.util.concurrent.BlockingDeque;
 import java.util.concurrent.LinkedBlockingDeque;
 
@@ -32,9 +30,6 @@ public class Bunny {
 
     private static Bunny INSTANCE;
 
-    public static Bunny getInstance() {
-        return INSTANCE;
-    }
 
     private boolean durable = true;
 
@@ -48,7 +43,7 @@ public class Bunny {
     ConnectionFactory factory;
 
     public void send(Message message) {
-        Log.v("bunny", "send");
+
         try {
             Log.d("","[q] " + message);
             queue.putLast(message);
@@ -76,13 +71,9 @@ public class Bunny {
         return INSTANCE;
     }
 
-//    public void addOnMessageReceivedListener(OnMessageReceivedListener onMessageReceivedListener) {
-//        RabbitMQManager.onMessageReceivedListenerList.add(onMessageReceivedListener);
-//    }
+
 
     public void startService() throws IOException {
-
-
 //            subscribe();
             publishToAMQP();
 
@@ -148,8 +139,8 @@ public class Bunny {
                         Connection connection = factory.newConnection();
                         Channel channel = connection.createChannel();
                         channel.basicQos(1);
-                        AMQP.Queue.DeclareOk q = channel.queueDeclare("alexpud", true, false, false, null);
-                        channel.queueBind(q.getQueue(), "amq.direct", "alexpud");
+                        AMQP.Queue.DeclareOk q = channel.queueDeclare(Sender.getINSTANCE().getUsername(), true, false, false, null);
+                        channel.queueBind(q.getQueue(), "amq.direct", Sender.getINSTANCE().getUsername());
                         QueueingConsumer consumer = new QueueingConsumer(channel);
                         channel.basicConsume(q.getQueue(), true, consumer);
 

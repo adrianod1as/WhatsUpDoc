@@ -1,10 +1,8 @@
 package com.sd.bugsbunny.Activities;
 
 import android.content.Context;
-import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.os.CountDownTimer;
 import android.os.Handler;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
@@ -25,8 +23,9 @@ import android.widget.Toast;
 
 import com.sd.bugsbunny.Models.Message;
 import com.sd.bugsbunny.R;
-import com.sd.bugsbunny.Utils.Bunny;
-import com.sd.bugsbunny.Utils.Databaser;
+import com.sd.bugsbunny.Singleton.Bunny;
+import com.sd.bugsbunny.Singleton.Databaser;
+import com.sd.bugsbunny.Singleton.Sender;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -115,14 +114,26 @@ public class Chat extends AppCompatActivity {
         realm = Realm.getInstance(realmConfig);
         chatmessages = realm.where(Message.class).findAllAsync();
 
-        chatmessages.addChangeListener(new RealmChangeListener<RealmResults<Message>>() {
-            @Override
-            public void onChange(RealmResults<Message> results) {
-                Message m = Databaser.getINSTANCE().getLastMessage("alexpud", buddy);
-                convList.add(m);
-                adp.notifyDataSetChanged();
-            }
-        });
+
+
+            chatmessages.addChangeListener(new RealmChangeListener<RealmResults<Message>>() {
+                @Override
+                public void onChange(RealmResults<Message> results) {
+                  //  try {
+                        Message m = Databaser.getINSTANCE().getLastMessage(Sender.getINSTANCE().getUsername(), buddy);
+                        if(m != null){
+                            convList.add(m);
+                            adp.notifyDataSetChanged();
+                        }
+                  //  }catch (IndexOutOfBoundsException e){
+
+                  //  }
+
+                }
+            });
+
+
+
     }
 
     @Override
@@ -157,7 +168,7 @@ public class Chat extends AppCompatActivity {
         imm.hideSoftInputFromWindow(txt.getWindowToken(), 0);
 
         String text = txt.getText().toString();
-        final Message msg = new Message(text, new Date(), "alexpud", buddy);
+        final Message msg = new Message(text, new Date(), Sender.getINSTANCE().getUsername(), buddy);
         msg.setSent(true);
         Databaser.getINSTANCE().saveToDatabase(msg);
        // convList.add(msg);
@@ -172,14 +183,13 @@ public class Chat extends AppCompatActivity {
 
     private void loadMessages(final String sender, final String receiver){
         RealmResults<Message> messages = Databaser.getINSTANCE().getAllChatMessagesOf(sender, receiver);
-        int x = messages.size();
-        String str = String.valueOf(messages.size());
-        Toast.makeText(Chat.this, "iamhere" + str, Toast.LENGTH_LONG).show();
-        for (Message m: messages){
-
-            convList.add(m);
-            adp.notifyDataSetChanged();
+        if(messages != null){
+            for (Message m: messages){
+                convList.add(m);
+                adp.notifyDataSetChanged();
+            }
         }
+
 
     }
 

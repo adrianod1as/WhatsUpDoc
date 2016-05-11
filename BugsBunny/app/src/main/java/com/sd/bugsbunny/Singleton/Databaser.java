@@ -1,70 +1,35 @@
-package com.sd.bugsbunny.Utils;
+package com.sd.bugsbunny.Singleton;
 
 import android.content.Context;
-import android.os.Bundle;
-import android.os.Handler;
-import android.util.Log;
 
-import com.google.gson.Gson;
-import com.rabbitmq.client.AMQP;
-import com.rabbitmq.client.Channel;
-import com.rabbitmq.client.Connection;
-import com.rabbitmq.client.ConnectionFactory;
-import com.rabbitmq.client.MessageProperties;
-import com.rabbitmq.client.QueueingConsumer;
 import com.sd.bugsbunny.Models.Message;
-
-import java.io.IOException;
-import java.util.concurrent.BlockingDeque;
-import java.util.concurrent.LinkedBlockingDeque;
+import com.sd.bugsbunny.Models.User;
 
 import io.realm.Realm;
 import io.realm.RealmConfiguration;
 import io.realm.RealmObject;
 import io.realm.RealmResults;
-import io.realm.Sort;
 
 /**
  * Created by adrianodiasx93 on 5/10/16.
  */
 public class Databaser {
 
-    private static final String SERVER_URL = "alexpud.koding.io";
-
-
     private static Databaser INSTANCE;
-
-    public static Databaser getInstance() {
-        return INSTANCE;
-    }
 
     RealmConfiguration realmConfig;
 
     Realm realm;
 
-
-
-
-
     Context context;
 
-
-
-
-
-
-
-    private Databaser() {
-
-    }
+    private Databaser() {}
 
     public static Databaser getINSTANCE() {
         if (INSTANCE == null)
             INSTANCE = new Databaser();
         return INSTANCE;
     }
-
-
 
     public void setContext(Context context) {
         destroy();
@@ -75,6 +40,12 @@ public class Databaser {
 
     }
 
+    public void createOrAcessUser(String user){
+        Sender.getINSTANCE().setUsername(user);
+        if(!isUserCreated(user))
+            saveToDatabase(new User(user));
+    }
+
     public void saveToDatabase(RealmObject realmObject) {
         if(context==null)
             throw new RuntimeException("chame setContext antes.");
@@ -82,6 +53,14 @@ public class Databaser {
         realm.beginTransaction();
         realm.copyToRealm(realmObject);
         realm.commitTransaction();
+    }
+
+    public boolean isUserCreated(String user){
+        realm = Realm.getInstance(realmConfig);
+        RealmResults<User> r = realm.where(User.class)
+                .equalTo("name", user)
+                .findAll();
+        return r.size()>0;
     }
 
     public RealmResults<Message> getAllChatMessagesOf(String user, String buddy){
