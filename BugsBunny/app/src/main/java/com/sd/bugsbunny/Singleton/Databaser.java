@@ -5,9 +5,12 @@ import android.content.Context;
 import com.sd.bugsbunny.Models.Message;
 import com.sd.bugsbunny.Models.User;
 
+import java.util.List;
+
 import io.realm.Realm;
 import io.realm.RealmConfiguration;
 import io.realm.RealmObject;
+import io.realm.RealmQuery;
 import io.realm.RealmResults;
 
 /**
@@ -44,6 +47,22 @@ public class Databaser {
         Sender.getINSTANCE().setUsername(user);
         if(!isUserCreated(user))
             saveToDatabase(new User(user));
+    }
+
+    public List<User> getUsers(String sender) {
+        if(context==null)
+            throw new RuntimeException("chame setContext antes.");
+//        realm = Realm.getInstance(realmConfig);
+////        RealmQuery<User> query = realm.where(User.class);
+////        RealmResults<User> users = query.findAll();
+//        return users.subList(0, users.size());
+
+        realm = Realm.getInstance(realmConfig);
+        RealmResults<User> users = realm.where(User.class)
+                .notEqualTo("name", sender)
+                .findAll();
+
+        return users.subList(0, users.size());
     }
 
     public void saveToDatabase(RealmObject realmObject) {

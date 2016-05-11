@@ -1,16 +1,21 @@
 package com.sd.bugsbunny.Activities;
 
+import android.app.ProgressDialog;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.text.format.DateUtils;
 import android.view.View;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
+import android.widget.BaseAdapter;
 import android.widget.ListView;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.gson.Gson;
@@ -23,11 +28,14 @@ import com.sd.bugsbunny.Singleton.Sender;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 
 public class Contacts extends AppCompatActivity {
 
     /** The Chat list. */
     private ArrayList<User> uList;
+
+
 
 
     /** The user. */
@@ -44,10 +52,20 @@ public class Contacts extends AppCompatActivity {
 
         showTheNameOfMy(Sender.getINSTANCE().getUsername());
 
-        loadContacts();
+        //loadContacts();
+
         listenToMessages();
 
     }
+
+    @Override
+    protected void onResume()
+    {
+        super.onResume();
+        loadUserList();
+
+    }
+
 
     @Override
     protected void onStart() {
@@ -103,8 +121,7 @@ public class Contacts extends AppCompatActivity {
 
             @Override
             public void onItemClick(AdapterView<?> parent, final View view,
-                                    int position, long id)
-            {
+                                    int position, long id) {
                 String item = (String) parent.getItemAtPosition(position);
                 Intent intent = new Intent(Contacts.this, Chat.class);
                 intent.putExtra("username", item);
@@ -112,6 +129,38 @@ public class Contacts extends AppCompatActivity {
             }
 
         });
+
+    }
+
+    /**
+     * Load list of users.
+     */
+    private void loadUserList()
+    {
+        List<User> users_list = Databaser.getINSTANCE().getUsers(Sender.getINSTANCE().getUsername());
+//        for(User s: users_list){
+//            Toast.makeText(Contacts.this, "usuario " + s.getName(), Toast.LENGTH_LONG).show();
+//        }
+        if (users_list != null && users_list.size() != 0) {
+
+                uList = new ArrayList<User>(users_list);
+
+                ListView list = (ListView) findViewById(R.id.list);
+                list.setAdapter(new UserAdapter());
+                list.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+
+                    @Override
+                    public void onItemClick(AdapterView<?> parent, final View view,
+                                            int position, long id) {
+
+
+                        String item = (String) uList.get(position).getName();
+                        Intent intent = new Intent(Contacts.this, Chat.class);
+                        intent.putExtra("username", item);
+                        Contacts.this.startActivity(intent);
+                    }
+                });
+        }
 
     }
 
@@ -136,6 +185,57 @@ public class Contacts extends AppCompatActivity {
 
         Bunny.getINSTANCE().subscribe(incomingMessageHandler);
 
+
+    }
+
+
+
+
+    private class UserAdapter extends BaseAdapter
+    {
+
+        /* (non-Javadoc)
+         * @see android.widget.Adapter#getCount()
+         */
+        @Override
+        public int getCount()
+        {
+            return uList.size();
+        }
+
+        /* (non-Javadoc)
+         * @see android.widget.Adapter#getItem(int)
+         */
+        @Override
+        public User getItem(int arg0)
+        {
+            return uList.get(arg0);
+        }
+
+        /* (non-Javadoc)
+         * @see android.widget.Adapter#getItemId(int)
+         */
+        @Override
+        public long getItemId(int arg0)
+        {
+            return arg0;
+        }
+
+        /* (non-Javadoc)
+         * @see android.widget.Adapter#getView(int, android.view.View, android.view.ViewGroup)
+         */
+        @Override
+        public View getView(int pos, View v, ViewGroup arg2)
+        {
+            if (v == null)
+                v = getLayoutInflater().inflate(R.layout.chat_item, null);
+
+            User c = getItem(pos);
+            TextView lbl = (TextView) v;
+            lbl.setText(c.getName());
+
+            return v;
+        }
 
     }
 

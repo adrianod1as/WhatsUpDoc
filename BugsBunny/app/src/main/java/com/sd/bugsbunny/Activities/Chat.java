@@ -108,7 +108,7 @@ public class Chat extends AppCompatActivity {
 
         }
 
-        loadMessages("alexpud", buddy);
+        loadMessages(Sender.getINSTANCE().getUsername(), buddy);
 
         realmConfig = new RealmConfiguration.Builder(getApplicationContext()).build();
         realm = Realm.getInstance(realmConfig);
@@ -120,8 +120,9 @@ public class Chat extends AppCompatActivity {
                 @Override
                 public void onChange(RealmResults<Message> results) {
                   //  try {
-                        Message m = Databaser.getINSTANCE().getLastMessage(Sender.getINSTANCE().getUsername(), buddy);
-                        if(m != null){
+                    Message m = Databaser.getINSTANCE().getLastMessage(Sender.getINSTANCE().getUsername(), buddy);
+                        if(m != null && !(m.getDate().equals(lastMsgDate)) ){
+                            lastMsgDate = m.getDate();
                             convList.add(m);
                             adp.notifyDataSetChanged();
                         }
@@ -185,6 +186,7 @@ public class Chat extends AppCompatActivity {
         RealmResults<Message> messages = Databaser.getINSTANCE().getAllChatMessagesOf(sender, receiver);
         if(messages != null){
             for (Message m: messages){
+                lastMsgDate = m.getDate();
                 convList.add(m);
                 adp.notifyDataSetChanged();
             }
