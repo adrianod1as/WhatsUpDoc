@@ -1,6 +1,7 @@
 package com.sd.bugsbunny.Singleton;
 
 import android.content.Context;
+import android.util.Log;
 
 import com.sd.bugsbunny.Models.Message;
 import com.sd.bugsbunny.Models.User;
@@ -103,8 +104,17 @@ public class Databaser {
 
     public Message getLastMessage(String user, String buddy){
         RealmResults<Message> messages = getAllChatMessagesOf(user, buddy);
+        for(Message m: messages){
+            Log.v("getlastmessage", m.getText());
+        }
+        Message m;
+        try{
+            m = messages.last();
+        }catch (IndexOutOfBoundsException e){
+            m = new Message();
+        }
 
-        return messages.last();
+        return m;
     }
 
     public void reset(){

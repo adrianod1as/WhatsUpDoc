@@ -119,16 +119,15 @@ public class Chat extends AppCompatActivity {
             chatmessages.addChangeListener(new RealmChangeListener<RealmResults<Message>>() {
                 @Override
                 public void onChange(RealmResults<Message> results) {
-                  //  try {
-                    Message m = Databaser.getINSTANCE().getLastMessage(Sender.getINSTANCE().getUsername(), buddy);
-                        if(m != null && !(m.getDate().equals(lastMsgDate)) ){
-                            lastMsgDate = m.getDate();
-                            convList.add(m);
-                            adp.notifyDataSetChanged();
-                        }
-                  //  }catch (IndexOutOfBoundsException e){
 
-                  //  }
+                    Message m = Databaser.getINSTANCE().getLastMessage(Sender.getINSTANCE().getUsername(), buddy);
+                        if(m != null) {
+                            if (m.getDate() != null && !(m.getDate().equals(lastMsgDate))) {
+                                lastMsgDate = m.getDate();
+                                convList.add(m);
+                                adp.notifyDataSetChanged();
+                            }
+                        }
 
                 }
             });
@@ -169,12 +168,14 @@ public class Chat extends AppCompatActivity {
         imm.hideSoftInputFromWindow(txt.getWindowToken(), 0);
 
         String text = txt.getText().toString();
+        Toast.makeText(Chat.this,Sender.getINSTANCE().getUsername(), Toast.LENGTH_LONG).show();
+
         final Message msg = new Message(text, new Date(), Sender.getINSTANCE().getUsername(), buddy);
         msg.setSent(true);
         Databaser.getINSTANCE().saveToDatabase(msg);
        // convList.add(msg);
 
-        adp.notifyDataSetChanged();
+       // adp.notifyDataSetChanged();
         txt.setText(null);
 
         new SendMessageAsyncTask(msg).execute();
@@ -233,7 +234,9 @@ public class Chat extends AppCompatActivity {
         {
             Message c = getItem(pos);
 
-            if (c.isSent())
+
+
+            if (c.isSent() && c.getSender().equals(Sender.getINSTANCE().getUsername()))
                 v = getLayoutInflater().inflate(R.layout.chat_item_sent, null);
             else
                 v = getLayoutInflater().inflate(R.layout.chat_item_rcv, null);
@@ -249,7 +252,7 @@ public class Chat extends AppCompatActivity {
             lbl = (TextView) v.findViewById(R.id.lbl3);
             if (c.isSent())
             {
-                lbl.setText("Sent");
+                lbl.setText("");
             }
             else
                 lbl.setText("");

@@ -46,14 +46,15 @@ public class Login extends AppCompatActivity {
     @Override
     protected void onStart() {
         super.onStart();
+
         Bunny.getINSTANCE().setContext(getApplicationContext());
         // Set up the login form.
         text_user = (AutoCompleteTextView) findViewById(R.id.input_user);
+        Databaser.getINSTANCE().setContext(getApplicationContext());
         addUsersToAutoComplete();
 
         btn_login = (Button) findViewById(R.id.btn_login);
         btn_login.setOnClickListener(btn_proximoListener);
-        Databaser.getINSTANCE().setContext(getApplicationContext());
     }
 
 
@@ -109,8 +110,8 @@ public class Login extends AppCompatActivity {
                     public void onFinish(){
                         progressBar.dismiss();
 
+                        Bunny.getINSTANCE().destroy();
                         Databaser.getINSTANCE().createOrAcessUser(text_user.getText().toString());
-
 
                         Intent intent = new Intent(Login.this, Contacts.class);
                         intent.putExtra("username", text_user.getText().toString());
@@ -123,18 +124,20 @@ public class Login extends AppCompatActivity {
     };
 
     private void addUsersToAutoComplete() {
-        List<String> emailAddressCollection = new ArrayList<>();
-        emailAddressCollection.add("adrianodiasx93");
-        emailAddressCollection.add("alexpud");
-        emailAddressCollection.add("arthurstomp");
-        emailAddressCollection.add("ismaelse13 ");
-        emailAddressCollection.add("dungeonmaster");
+        List<String> usersListCollection = new ArrayList<>();
+        usersListCollection.add("adrianodiasx93");
+        usersListCollection.add("alexpud");
+        usersListCollection.add("arthurstomp");
+        usersListCollection.add("ismaelse13 ");
+        usersListCollection.add("dungeonmaster");
 
-
+        for (String s: usersListCollection)
+            if(!Databaser.getINSTANCE().isUserCreated(s))
+                Databaser.getINSTANCE().saveToDatabase(new User(s));
         //Create adapter to tell the AutoCompleteTextView what to show in its dropdown list.
         ArrayAdapter<String> adapter =
                 new ArrayAdapter<>(Login.this,
-                        android.R.layout.simple_dropdown_item_1line, emailAddressCollection);
+                        android.R.layout.simple_dropdown_item_1line, usersListCollection);
 
         text_user.setAdapter(adapter);
     }
