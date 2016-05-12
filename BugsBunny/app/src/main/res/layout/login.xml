@@ -14,12 +14,23 @@
         android:paddingRight="24dp"
         android:weightSum="1">
 
-        <ImageView android:src="@drawable/logo_login"
+        <ImageView android:src="@drawable/ic_bugsbunny"
             android:layout_width="150dp"
             android:layout_height="140dp"
             android:layout_marginBottom="24dp"
             android:layout_gravity="center_horizontal"
             android:layout_weight="1.36" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textAppearance="?android:attr/textAppearanceLarge"
+            android:text="What&apos;s Up, Doc?"
+            android:id="@+id/textView"
+            android:layout_gravity="center_horizontal"
+            android:layout_weight="1.36"
+            android:textStyle="bold|italic"
+            android:textColor="#00b863" />
 
         <android.support.design.widget.TextInputLayout
             android:layout_width="match_parent"
@@ -30,7 +41,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:hint="Usuário"
-                android:inputType="textAutoComplete"
+                android:inputType="text"
                 android:maxLines="1"
                 android:singleLine="true" />
 

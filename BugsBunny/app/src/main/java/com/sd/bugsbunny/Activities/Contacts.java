@@ -1,18 +1,15 @@
 package com.sd.bugsbunny.Activities;
 
-import android.app.ProgressDialog;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
-import android.text.format.DateUtils;
 import android.view.View;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
-import android.widget.ArrayAdapter;
 import android.widget.BaseAdapter;
 import android.widget.ListView;
 import android.widget.TextView;
@@ -27,7 +24,6 @@ import com.sd.bugsbunny.Singleton.Databaser;
 import com.sd.bugsbunny.Singleton.Sender;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 public class Contacts extends AppCompatActivity {
@@ -35,15 +31,11 @@ public class Contacts extends AppCompatActivity {
     /** The Chat list. */
     private ArrayList<User> uList;
 
-
-
-
     /** The user. */
     public static User user;
 
     private Toolbar informUser;
 
-    private ArrayAdapter<String> listAdapter ;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -51,9 +43,6 @@ public class Contacts extends AppCompatActivity {
         setContentView(R.layout.activity_contacts);
 
         showTheNameOfMy(Sender.getINSTANCE().getUsername());
-
-        //loadContacts();
-
         listenToMessages();
 
     }
@@ -63,17 +52,12 @@ public class Contacts extends AppCompatActivity {
     {
         super.onResume();
         loadUserList();
-
     }
-
 
     @Override
     protected void onStart() {
         super.onStart();
         Databaser.getINSTANCE().setContext(getApplicationContext());
-
-        // Set up the login form.
-
     }
 
     @Override
@@ -99,48 +83,17 @@ public class Contacts extends AppCompatActivity {
     }
 
 
-    private void showTheNameOfMy(String user){
+    private void showTheNameOfMy(String sender){
         informUser = (Toolbar) findViewById(R.id.contact_toolbar);
         setSupportActionBar(informUser);
-        getSupportActionBar().setTitle(user);
+        getSupportActionBar().setTitle("Bem vindo, "+sender);
     }
 
-    private void loadContacts()
-    {
-        ListView list = (ListView) findViewById(R.id.list);
 
-        String[] contacts = new String[] { "adrianodiasx93", "ericmoura", "alexpud"};
-        ArrayList<String> contactslist = new ArrayList<String>();
-        contactslist.addAll( Arrays.asList(contacts) );
-
-        listAdapter = new ArrayAdapter<String>(this, R.layout.chat_item, contactslist);
-
-        list.setAdapter(listAdapter);
-
-        list.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-
-            @Override
-            public void onItemClick(AdapterView<?> parent, final View view,
-                                    int position, long id) {
-                String item = (String) parent.getItemAtPosition(position);
-                Intent intent = new Intent(Contacts.this, Chat.class);
-                intent.putExtra("username", item);
-                Contacts.this.startActivity(intent);
-            }
-
-        });
-
-    }
-
-    /**
-     * Load list of users.
-     */
     private void loadUserList()
     {
         List<User> users_list = Databaser.getINSTANCE().getUsers(Sender.getINSTANCE().getUsername());
-//        for(User s: users_list){
-//            Toast.makeText(Contacts.this, "usuario " + s.getName(), Toast.LENGTH_LONG).show();
-//        }
+
         if (users_list != null && users_list.size() != 0) {
 
                 uList = new ArrayList<User>(users_list);
@@ -185,11 +138,7 @@ public class Contacts extends AppCompatActivity {
 
         Bunny.getINSTANCE().subscribe(incomingMessageHandler);
 
-
     }
-
-
-
 
     private class UserAdapter extends BaseAdapter
     {
@@ -238,9 +187,5 @@ public class Contacts extends AppCompatActivity {
         }
 
     }
-
-
-
-//
 
 }

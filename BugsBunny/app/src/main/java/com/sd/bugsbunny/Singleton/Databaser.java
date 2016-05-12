@@ -53,10 +53,6 @@ public class Databaser {
     public List<User> getUsers(String sender) {
         if(context==null)
             throw new RuntimeException("chame setContext antes.");
-//        realm = Realm.getInstance(realmConfig);
-////        RealmQuery<User> query = realm.where(User.class);
-////        RealmResults<User> users = query.findAll();
-//        return users.subList(0, users.size());
 
         realm = Realm.getInstance(realmConfig);
         RealmResults<User> users = realm.where(User.class)
@@ -122,9 +118,6 @@ public class Databaser {
     }
 
     public void destroy(){
-//        if(publishThread!=null)
-//            publishThread.interrupt();
-//        if(subscribeThread!=null)
-//            subscribeThread.interrupt();
+
     }
 }
