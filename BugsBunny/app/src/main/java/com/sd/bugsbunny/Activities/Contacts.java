@@ -86,7 +86,7 @@ public class Contacts extends AppCompatActivity {
     private void showTheNameOfMy(String sender){
         informUser = (Toolbar) findViewById(R.id.contact_toolbar);
         setSupportActionBar(informUser);
-        getSupportActionBar().setTitle("Bem vindo, "+sender);
+        getSupportActionBar().setTitle("Bem vindo, " + sender);
     }
 
 
@@ -131,6 +131,9 @@ public class Contacts extends AppCompatActivity {
                 }else{
                     Toast.makeText(Contacts.this, "houston we have a problem at receiving", Toast.LENGTH_LONG).show();
                 }
+
+                if(!Databaser.getINSTANCE().isUserCreated(message_db.getSender()))
+                    Databaser.getINSTANCE().saveToDatabase(new User(message_db.getSender()));
 
                 Databaser.getINSTANCE().saveToDatabase(message_db);
             }
