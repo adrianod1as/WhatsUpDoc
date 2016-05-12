@@ -132,8 +132,10 @@ public class Contacts extends AppCompatActivity {
                     Toast.makeText(Contacts.this, "houston we have a problem at receiving", Toast.LENGTH_LONG).show();
                 }
 
-                if(!Databaser.getINSTANCE().isUserCreated(message_db.getSender()))
+                if(!Databaser.getINSTANCE().isUserCreated(message_db.getSender())){
                     Databaser.getINSTANCE().saveToDatabase(new User(message_db.getSender()));
+                    loadUserList();
+                }
 
                 Databaser.getINSTANCE().saveToDatabase(message_db);
             }
